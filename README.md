@@ -7,4 +7,4 @@
 
 - MVVM + Coordinator
 - UserDefaults (если б добрался до пк раньше - использовал бы FileManager)
-- delegate, singleton, UITableView, 
+- protocols, delegates, singleton, UITableView
