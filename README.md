@@ -7,20 +7,6 @@
 - Архитектура MVVM + паттерн Coordinator;
 - Интерфейс в коде, без Storyboard;
 - В качестве хранилища использовал UserDefaults, если бы был доступ к компу раньше - сделал бы в FileManager
- 
-<img src="Screen/Screenshot at Feb 10 02-53-36.png" alt="Задана ширина и высота" >
-
-
-<h1 align="center"> Т*стовое з*дание на ст*жировку в ЦФТ
+![Simulator Screen Recording - iPhone 14 Pro - 2024-02-01 at 22 21 14](https://github.com/RomanVakulenko/NotesByVakulenko_MVVM-C/assets/97017715/f89a35c0-2a38-46d6-baec-738be5241371)
 
 Жена ушла...развод, потому у меня было только 1,5 дня
-
-# Добрался до мака за 1,5 дня до дедлайна, сделал следующее:
-- Обязательные требования 
-- Желательно
-- Идеи для улучшения (не хватило времени)
-
-
-- MVVM + Coordinator
-- UserDefaults (если б добрался до мака раньше - использовал бы FileManager)
-- protocols, delegates, singleton, UITableView
