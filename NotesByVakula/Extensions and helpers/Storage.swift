@@ -7,38 +7,67 @@
 
 import Foundation
 
+//MARK: - Класс для хранения данных о заметке.
+final class NoteModel: Codable {
 
-final class Storage {
+    var name: String
+    var noteText: String
 
-    // MARK: - Public properties
-    public static let shared = Storage(mapper: DataMapper())
+    init(name: String, noteText: String) {
+        self.name = name
+        self.noteText = noteText
+    }
+}
+/// сравнение
+extension NoteModel: Equatable {
+    static func == (lhs: NoteModel, rhs: NoteModel) -> Bool {
+        lhs.name == rhs.name
+    }
+}
 
-    public var dataModelsStoredInFM: [NoteModelData] = [] {
-        didSet{
-            encodeAndSaveModelsArrAsJsonFileToFM(dataModels: dataModelsStoredInFM)
+
+
+//MARK: - Класс для сохранения и изменения заметок пользователя.
+final class NoteStore {
+    static let shared: NoteStore = .init()
+
+    /// Список заметок, добавленных пользователем. Добавленные заметки сохраняются в UserDefaults и доступны после перезагрузки приложения.
+    var notes: [NoteModel] = [] {
+        didSet {
+            save()
         }
     }
-
     // MARK: - Private properties
-    private let mapper: MapperProtocol
+    private lazy var userDefaults: UserDefaults = .standard
+    private lazy var decoder: JSONDecoder = .init()
+    private lazy var encoder: JSONEncoder = .init()
 
+    // MARK: - Public methods
+    /// Сохраняет все изменения в заметках в UserDefaults.
+    func save() {
+        do {
+            let data = try encoder.encode(notes)
+            userDefaults.set(data, forKey: "notes")
+        }
+        catch {
+            print("Ошибка кодирования заметок для сохранения", error)
+        }
+    }
 
     // MARK: - Init
-    private init(mapper: MapperProtocol) {
-        self.mapper = mapper
-    }
-
-    // MARK: - Private methods
-    private func encodeAndSaveModelsArrAsJsonFileToFM(dataModels: [NoteModelData]) {
+    private init() {
+        guard let data = userDefaults.data(forKey: "notes") else {
+           /// Если в UserDefaults нет сохраненных заметок, то создаем новую заметку и сохраняем ее
+            let newNote = NoteModel(name: "Название заметки по умолчанию", noteText: "Обязательное требование: При первом запуске приложение должно иметь одну заметку с текстом.")
+            notes = [newNote]
+            save()
+            return
+        }
         do {
-            ///кодируем data из [NoteModelData] для сохранения videoItemData в FM
-            let data = try mapper.encode(from: dataModels)
-            ///сохраняем в FM по уникальному url
-            try data.write(to: JsonModelsURL.inFM)
-            print("\(dataModels), this array encoded to \(data) & saved to \(JsonModelsURL.inFM)")
-        } catch {
-            print("Error saving data to FileManager: \(error.localizedDescription)")
+            notes = try decoder.decode([NoteModel].self, from: data)
+        }
+        catch {
+            print("Ошибка декодирования сохранённых заметок", error)
         }
     }
-
 }

@@ -5,11 +5,17 @@
 //  Created by Roman Vakulenko on 31.01.2024.
 //
 
-import Foundation
+
 import UIKit
 
 protocol NotesCoordinatorProtocol: AnyObject {
-    func pushSecondVC()
+    func pushAddNewNoteVC(noteVCState: NoteVCState, delegate: AddNoteDelegate)
+    func pushEditNoteVC(
+        modelForEdit: NoteModel,
+        noteState: NoteVCState,
+        delegate: EditNoteDelegate,
+        indexPath: IndexPath
+    )
     func popToRootVC()
 }
 
@@ -26,7 +32,6 @@ final class NotesFlowCoordinator {
 
     // MARK: - Private methods
     private func createFirstVC() -> UIViewController {
-//        let fileManager = LocalFilesManager(mapper: mapper)
         let viewModel = TableViewModel(coordinator: self)
         let tableVC = TableViewController(viewModel: viewModel)
         let navController = UINavigationController(rootViewController: tableVC)
@@ -34,11 +39,21 @@ final class NotesFlowCoordinator {
         return navigationController
     }
 
-    private func createSecondVC() -> UIViewController {
-//        let fileManager = LocalFilesManager(mapper: mapper)
-        let viewModel = NoteViewModel(coordinator: self)
-        let vc = NoteViewController(viewModel: viewModel)
-        return vc
+    private func makeAddNewNoteVC(addDelegate: AddNoteDelegate, noteState: NoteVCState) -> UIViewController {
+        let viewModel = NoteViewModel(coordinator: self, addDelegate: addDelegate)
+        let addNoteVC = NoteViewController(viewModel: viewModel, noteState: noteState)
+        return addNoteVC
+    }
+
+    private func makeEditNoteVC(modelForEdit: NoteModel, noteState: NoteVCState, editNoteDelegate: EditNoteDelegate, indexPath: IndexPath) -> UIViewController {
+        let viewModel = NoteViewModel(
+            coordinator: self,
+            existingModel: modelForEdit,
+            editDelegate: editNoteDelegate,
+            indexPath: indexPath
+        )
+        let editNoteVC = NoteViewController(viewModel: viewModel, noteState: noteState)
+        return editNoteVC
     }
 
 }
@@ -56,9 +71,19 @@ extension NotesFlowCoordinator: CoordinatorProtocol {
 // MARK: - FlowCoordinatorProtocol
 extension NotesFlowCoordinator: NotesCoordinatorProtocol {
 
-    func pushSecondVC() {
-        let secondVC = createSecondVC()
-        navigationController.pushViewController(secondVC, animated: true)
+    func pushAddNewNoteVC(noteVCState: NoteVCState, delegate: AddNoteDelegate) {
+        let vc = makeAddNewNoteVC(addDelegate: delegate, noteState: noteVCState)
+        navigationController.pushViewController(vc, animated: true)
+    }
+
+    func pushEditNoteVC(modelForEdit: NoteModel, noteState: NoteVCState, delegate: EditNoteDelegate, indexPath: IndexPath) {
+        let vc = makeEditNoteVC(
+            modelForEdit: modelForEdit,
+            noteState: noteState,
+            editNoteDelegate: delegate,
+            indexPath: indexPath
+        )
+        navigationController.pushViewController(vc, animated: true)
     }
 
     func popToRootVC() {

@@ -20,10 +20,7 @@ final class NoteViewModel {
 
     // MARK: - Public properties
     private(set) var noteModel: NoteModel?
-
     var closureChangingText: ((String) -> Void)?
-//    let fManager: LocalFilesManagerProtocol
-
     var noteText: String = "" {
         didSet {
             closureChangingText?(noteText)
@@ -32,10 +29,8 @@ final class NoteViewModel {
 
     // MARK: - Private properties
     private weak var coordinator: NotesCoordinatorProtocol?
-
     private weak var addNoteDelegate: AddNoteDelegate?
     private weak var editNoteDelegate: EditNoteDelegate?
-
     private var currentIndexPath: IndexPath?
 
     // MARK: - Init
@@ -51,13 +46,18 @@ final class NoteViewModel {
         self.addNoteDelegate = addDelegate
     }
 
-
     // MARK: - Public methods
+    func didTapBack(at state: NoteVCState) {
+        if let indexPath = currentIndexPath {
+            switch state {
+            case .edit:
+                editNoteDelegate?.reloadEditedNoteAt(indexPath, dueTo: .edit)
+            default: return
+            }
+        } else {
+            addNoteDelegate?.reloadData()
+        }
 
-    func updateNoteText(textView: )
-
-    func didTapBack() {
-        addNoteDelegate?.reloadData()
         coordinator?.popToRootVC()
     }
 

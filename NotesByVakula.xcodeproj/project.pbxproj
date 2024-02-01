@@ -22,7 +22,6 @@
 		ADDE88F92B6A96B0006FC144 /* Print + extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADDE88F82B6A96B0006FC144 /* Print + extension.swift */; };
 		ADDE88FB2B6A96E9006FC144 /* UIView + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADDE88FA2B6A96E9006FC144 /* UIView + Extension.swift */; };
 		ADDE88FF2B6A9DFC006FC144 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADDE88FE2B6A9DFC006FC144 /* Constants.swift */; };
-		ADDE89042B6ADEC9006FC144 /* NoteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADDE89032B6ADEC9006FC144 /* NoteModel.swift */; };
 		ADDE89062B6B8D3F006FC144 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADDE89052B6B8D3F006FC144 /* Storage.swift */; };
 /* End PBXBuildFile section */
 
@@ -44,7 +43,6 @@
 		ADDE88F82B6A96B0006FC144 /* Print + extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Print + extension.swift"; sourceTree = "<group>"; };
 		ADDE88FA2B6A96E9006FC144 /* UIView + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView + Extension.swift"; sourceTree = "<group>"; };
 		ADDE88FE2B6A9DFC006FC144 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		ADDE89032B6ADEC9006FC144 /* NoteModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteModel.swift; sourceTree = "<group>"; };
 		ADDE89052B6B8D3F006FC144 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -82,7 +80,6 @@
 				ADDE88E42B6A894F006FC144 /* Coordinators */,
 				ADDE88EB2B6A8D2E006FC144 /* TableViewController */,
 				ADDE88EC2B6A8DA8006FC144 /* NoteViewController */,
-				ADDE89022B6ADEB4006FC144 /* Model */,
 				ADDE88F32B6A919E006FC144 /* Cell */,
 				ADDE88F72B6A9687006FC144 /* Extensions and helpers */,
 				ADDE88D82B6A8816006FC144 /* Assets.xcassets */,
@@ -146,14 +143,6 @@
 				ADDE89052B6B8D3F006FC144 /* Storage.swift */,
 			);
 			path = "Extensions and helpers";
-			sourceTree = "<group>";
-		};
-		ADDE89022B6ADEB4006FC144 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				ADDE89032B6ADEC9006FC144 /* NoteModel.swift */,
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -235,7 +224,6 @@
 				ADDE88D02B6A8812006FC144 /* AppDelegate.swift in Sources */,
 				ADDE88E62B6A8972006FC144 /* CoordinatorProtocol.swift in Sources */,
 				ADDE88FB2B6A96E9006FC144 /* UIView + Extension.swift in Sources */,
-				ADDE89042B6ADEC9006FC144 /* NoteModel.swift in Sources */,
 				ADDE88E82B6A899E006FC144 /* MainCoordinator.swift in Sources */,
 				ADDE88FF2B6A9DFC006FC144 /* Constants.swift in Sources */,
 				ADDE88D22B6A8812006FC144 /* SceneDelegate.swift in Sources */,

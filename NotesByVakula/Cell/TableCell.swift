@@ -11,14 +11,12 @@ import UIKit
 final class TableCell: UITableViewCell {
 
     // MARK: - Private properties
-    private var notes: NoteModel?
-
-    private var urlOfNoteInFM: URL?
+    private var note: NoteModel!
 
     private let noteTitle: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .blue
+        label.textColor = .black
         label.text = ""
         label.font = UIFont.systemFont(ofSize: 16)
         return label
@@ -36,24 +34,20 @@ final class TableCell: UITableViewCell {
     }
 
     // MARK: - Public methods
-    ///c помощью UINoteModel которая  имеет URL  к mp4 в FileManager
-//    func configure(with uiNoteModel: NoteProtocol?) {
-//
-//        if let uiNote = uiNoteModel {
-//            urlOfNoteInFM = uiNote.noteFileURLWithPathInFM
-//        }
-//    }
+    func setup(note: NoteModel) {
+        self.note = note
+        self.noteTitle.text = note.name
+    }
 
     // MARK: - Private methods
     private func setupView() {
         contentView.addSubview(noteTitle)
-        contentView.backgroundColor = .lightGray
     }
 
     private func layout() {
         NSLayoutConstraint.activate([
-            noteTitle.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            noteTitle.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            noteTitle.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.insetForCell*2),
+            noteTitle.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.insetForCell),
             noteTitle.topAnchor.constraint(equalTo: contentView.topAnchor),
             noteTitle.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])

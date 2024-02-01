@@ -13,12 +13,21 @@ enum NoteVCState {
 
 final class NoteViewController: UIViewController {
 
+    // MARK: - Private properties
+    private var noteState: NoteVCState
     private var viewModel: NoteViewModel
 
+    private lazy var noteStore: NoteStore = {
+        return NoteStore.shared
+    }()
 
-    private var noteState: NoteVCState
+    private lazy var model: NoteModel? = { [unowned self] in
+        self.viewModel.noteModel
+    }()
+
     ///устанавливается после ввода  или уже передается заполненным, если нажали на существующую ячейку - заметку
     private var currentTitle = ""
+    private var currentText = ""
 
     private let baseView: UIView = {
         let view = UIView()
@@ -32,19 +41,30 @@ final class NoteViewController: UIViewController {
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: Constants.insetForCell*2, height: textField.frame.height))
         textField.leftViewMode = .always
         textField.placeholder = "Type note title here"
-        textField.font = UIFont.systemFont(ofSize: 16)
+        textField.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         textField.textColor = UIColor.black
         textField.backgroundColor = UIColor.white
         textField.delegate = self
         return textField
     }()
 
+    private lazy var noteTextLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 16, weight: .light)
+        label.textColor = .black
+        label.text = "    Введите ниже текст заметки"
+        return label
+    }()
+
     private lazy var noteTextView: UITextView = {
         let textView = UITextView()
+        textView.translatesAutoresizingMaskIntoConstraints = false
         textView.isScrollEnabled = true
         textView.alwaysBounceVertical = true
         textView.isEditable = true
-        textView.font = UIFont.preferredFont(forTextStyle: .body)
+        textView.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        textView.textColor = .darkGray
         textView.delegate = self
         return textView
     }()
@@ -54,45 +74,49 @@ final class NoteViewController: UIViewController {
     init(viewModel: NoteViewModel, noteState: NoteVCState) {
         self.viewModel = viewModel
         self.noteState = noteState
-
+        super.init(nibName: nil, bundle: nil)
         self.viewModel.closureChangingText = { [weak self] text in //меняет текст онлайн при вводе
             self?.noteTextView.text = text
         }
-        super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
         layout()
-        noteTextView.text = viewModel.noteText //показываем текст заметки при ее открытии
+        presetDataForEditingNote()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-            title: "Список заметок",
+            title: "< Заметки",
             style: .plain,
             target: self,
-            action: #selector(backToTableViewController)
+            action: #selector(saveNote)
         )
-        title = noteState == .add ? "Создать заметку" : "Править заметку"
+        title = noteState == .add ? "Create new note" : "Read/write note"
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        noteTextView.becomeFirstResponder()
+        if noteState == .add {
+            noteTitle.becomeFirstResponder()
+        } else {
+            noteTextView.becomeFirstResponder()
+        }
     }
 
 
     // MARK: - Private methods
     private func setupView() {
-        [noteTitle, noteTextView].forEach { baseView.addSubview($0)}
+        [noteTitle, noteTextLabel, noteTextView].forEach { baseView.addSubview($0)}
         view.addSubview(baseView)
         view.backgroundColor = #colorLiteral(red: 0.9999960065, green: 1, blue: 1, alpha: 1)
     }
@@ -109,42 +133,53 @@ final class NoteViewController: UIViewController {
             noteTitle.topAnchor.constraint(equalTo: baseView.topAnchor, constant: Constants.insetForCell),
             noteTitle.heightAnchor.constraint(equalToConstant: Constants.headerHeight),
 
+            noteTextLabel.leadingAnchor.constraint(equalTo: baseView.leadingAnchor, constant: Constants.insetForCell),
+            noteTextLabel.trailingAnchor.constraint(equalTo: baseView.trailingAnchor, constant: -Constants.insetForCell),
+            noteTextLabel.topAnchor.constraint(equalTo: noteTitle.bottomAnchor, constant: Constants.insetForCell),
+            noteTextLabel.heightAnchor.constraint(equalToConstant: Constants.headerHeight),
+
             noteTextView.leadingAnchor.constraint(equalTo: baseView.leadingAnchor, constant: Constants.insetForCell),
             noteTextView.trailingAnchor.constraint(equalTo: baseView.trailingAnchor, constant: -Constants.insetForCell),
-            noteTextView.topAnchor.constraint(equalTo: noteTitle.bottomAnchor, constant: Constants.insetForCell),
+            noteTextView.topAnchor.constraint(equalTo: noteTextLabel.bottomAnchor, constant: Constants.insetForCell),
             noteTextView.bottomAnchor.constraint(equalTo: baseView.bottomAnchor, constant: -Constants.insetForCell),
         ])
     }
 
-
     ///предустанавливаем название и текст заметки
-    private func presetDataForEditingHabit() {
+    private func presetDataForEditingNote() {
         guard let model else {return}
-        if model.name != "",
-           habitState == .edit {
+
+        if model.name != "" && noteState == .edit {
             currentTitle = model.name
-            currentDate = model.date
-            currentColor = model.color
+            currentText = model.noteText
 
-            deleteButton.isHidden = false
-
-            nameOfHabit.text = currentTitle
-            nameOfHabit.textColor = currentColor
-            pickerButton.tintColor = currentColor //для "Править", если цвет был - то оставляем
-            datePicker.date = currentDate
-
-            pickedTime.text = Format.timeForHabitRepeats.string(from: currentDate)
-            pickedTime.textColor = UIColor(named: "dPurple")
-            colorPicker.selectedColor = currentColor
+            noteTitle.text = currentTitle //model.name
+            noteTextView.text = currentText //model.noteText
         }
     }
-    //MARK: - actions
-    @objc func backToHabitsViewController() {
-        viewModel.didTapBack()
+    // MARK: - Actions
+    @objc func saveNote(_ sender: UIBarButtonItem) {
+        if noteState == .add {
+            //добавляем заметку в store
+            noteTitle.text = currentTitle == "" ? "Название заметки не было установлено" : currentTitle
+            noteTextView.text = currentText == "" ? "Без текста" : currentText
+
+            noteStore.notes.append(NoteModel(name: currentTitle, noteText: currentText))
+            viewModel.didTapBack(at: .add)
+
+        } else if noteState == .edit {
+            if let model,
+               let tappedNote = noteStore.notes.first(where: { $0.name == model.name }) {
+                tappedNote.name = currentTitle
+                tappedNote.noteText = currentText
+            }
+            viewModel.didTapBack(at: .edit)
+        }
     }
+
 }
 
-// MARK: - Extension
+// MARK: - Extensions
 extension NoteViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder() // textField перестает быть первым откликающимся
@@ -155,14 +190,9 @@ extension NoteViewController: UITextFieldDelegate {
 extension NoteViewController: UITextViewDelegate {
     func textFieldDidChangeSelection(_ noteTitle: UITextField) {
         currentTitle = noteTitle.text ?? "" //как только текст в noteTitle меняется, то записывается в currentTitle
-        if noteState == .add {
-            noteTitle.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-        }
     }
 
     func textViewDidChange(_ textView: UITextView) {
-        viewModel.updateNoteText(textView.text)
+        currentText = noteTextView.text
     }
-
-
 }
